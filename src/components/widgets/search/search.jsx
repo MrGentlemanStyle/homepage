@@ -139,6 +139,19 @@ export default function Search({ options }) {
     if (event.key === "Enter") {
       doSearch(useSuggestion ? currentSuggestion : event.target.value);
     }
+
+    if (event.key === "Tab") {
+      if (!(options.showSearchSuggestions && (selectedProvider.suggestionUrl || options.suggestionUrl))) {
+        return;
+      }
+
+      if (!useSuggestion) {
+        return;
+      }
+
+      event.preventDefault();
+      setQuery(currentSuggestion);
+    }
   };
 
   if (!availableProviderIds) {
