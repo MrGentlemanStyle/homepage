@@ -69,11 +69,19 @@ export default function QuickLaunch({
     } else if (event.key === "Enter" && results.length) {
       closeAndReset();
       openCurrentItem(event.metaKey);
-    } else if (event.key === "ArrowDown" && results[currentItemIndex + 1]) {
-      setCurrentItemIndex(currentItemIndex + 1);
+    } else if (event.key === "ArrowDown") {
+      if (results[currentItemIndex + 1]) {
+        setCurrentItemIndex(currentItemIndex + 1);
+      } else {
+        setCurrentItemIndex(0);
+      }
       event.preventDefault();
-    } else if (event.key === "ArrowUp" && currentItemIndex > 0) {
-      setCurrentItemIndex(currentItemIndex - 1);
+    } else if (event.key === "ArrowUp") {
+      if (currentItemIndex > 0) {
+        setCurrentItemIndex(currentItemIndex - 1);
+      } else {
+        setCurrentItemIndex(results.length - 1);
+      }
       event.preventDefault();
     } else if (event.key === "Tab" && results[currentItemIndex]?.type === "searchSuggestion") {
       updateSearch(results[currentItemIndex].name);
