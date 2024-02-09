@@ -127,7 +127,7 @@ export default function QuickLaunch({
         });
 
         if (showSearchSuggestions && searchProvider.suggestionUrl) {
-          if (searchString.trim() !== searchSuggestions[0]) {
+          if (searchString.trim() !== searchSuggestions[0]?.trim()) {
             fetch(
               `/api/search/searchSuggestion?query=${encodeURIComponent(searchString)}&providerName=${
                 searchProvider.name ?? "Custom"
