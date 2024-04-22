@@ -117,6 +117,8 @@ export async function servicesFromDocker() {
 
         return { server: serverName, services: discovered.filter((filteredService) => filteredService) };
       } catch (e) {
+        logger.error("Error getting services from Docker server '%s': %s", serverName, e);
+
         // a server failed, but others may succeed
         return { server: serverName, services: [] };
       }
@@ -391,6 +393,9 @@ export function cleanServiceGroups(groups) {
           enableBlocks,
           enableNowPlaying,
 
+          // glances, pihole
+          version,
+
           // glances
           chart,
           metric,
@@ -445,6 +450,7 @@ export function cleanServiceGroups(groups) {
 
           // truenas
           enablePools,
+          nasType,
 
           // unifi
           site,
@@ -453,7 +459,7 @@ export function cleanServiceGroups(groups) {
         let fieldsList = fields;
         if (typeof fields === "string") {
           try {
-            JSON.parse(fields);
+            fieldsList = JSON.parse(fields);
           } catch (e) {
             logger.error("Invalid fields list detected in config for service '%s'", service.name);
             fieldsList = null;
@@ -517,6 +523,7 @@ export function cleanServiceGroups(groups) {
         }
         if (type === "truenas") {
           if (enablePools !== undefined) cleanedService.widget.enablePools = JSON.parse(enablePools);
+          if (nasType !== undefined) cleanedService.widget.nasType = nasType;
         }
         if (["diskstation", "qnap"].includes(type)) {
           if (volume) cleanedService.widget.volume = volume;
@@ -524,6 +531,9 @@ export function cleanServiceGroups(groups) {
         if (type === "kopia") {
           if (snapshotHost) cleanedService.widget.snapshotHost = snapshotHost;
           if (snapshotPath) cleanedService.widget.snapshotPath = snapshotPath;
+        }
+        if (["glances", "pihole"].includes(type)) {
+          if (version) cleanedService.widget.version = version;
         }
         if (type === "glances") {
           if (metric) cleanedService.widget.metric = metric;
