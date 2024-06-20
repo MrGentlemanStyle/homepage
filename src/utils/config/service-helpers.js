@@ -254,7 +254,8 @@ export async function servicesFromKubernetes() {
           ingress.metadata.annotations &&
           ingress.metadata.annotations[`${ANNOTATION_BASE}/enabled`] === "true" &&
           (!ingress.metadata.annotations[`${ANNOTATION_BASE}/instance`] ||
-            ingress.metadata.annotations[`${ANNOTATION_BASE}/instance`] === instanceName),
+            ingress.metadata.annotations[`${ANNOTATION_BASE}/instance`] === instanceName ||
+            `${ANNOTATION_BASE}/instance.${instanceName}` in ingress.metadata.annotations),
       )
       .map((ingress) => {
         let constructedService = {
@@ -395,6 +396,8 @@ export function cleanServiceGroups(groups) {
 
           // emby, jellyfin, tautulli
           enableUser,
+          expandOneStreamToTwoRows,
+          showEpisodeNumber,
 
           // glances, pihole
           version,
@@ -448,6 +451,9 @@ export function cleanServiceGroups(groups) {
           // proxmox
           node,
 
+          // speedtest
+          bitratePrecision,
+
           // sonarr, radarr
           enableQueue,
 
@@ -457,6 +463,9 @@ export function cleanServiceGroups(groups) {
 
           // unifi
           site,
+
+          // wgeasy
+          threshold,
         } = cleanedService.widget;
 
         let fieldsList = fields;
@@ -520,14 +529,13 @@ export function cleanServiceGroups(groups) {
         if (["emby", "jellyfin"].includes(type)) {
           if (enableBlocks !== undefined) cleanedService.widget.enableBlocks = JSON.parse(enableBlocks);
           if (enableNowPlaying !== undefined) cleanedService.widget.enableNowPlaying = JSON.parse(enableNowPlaying);
-          if (enableUser !== undefined) {
-            cleanedService.widget.enableUser = !!JSON.parse(enableUser);
-          }
         }
-        if (["tautulli"].includes(type)) {
-          if (enableUser !== undefined) {
-            cleanedService.widget.enableUser = !!JSON.parse(enableUser);
-          }
+        if (["emby", "jellyfin", "tautulli"].includes(type)) {
+          if (expandOneStreamToTwoRows !== undefined)
+            cleanedService.widget.expandOneStreamToTwoRows = !!JSON.parse(expandOneStreamToTwoRows);
+          if (showEpisodeNumber !== undefined)
+            cleanedService.widget.showEpisodeNumber = !!JSON.parse(showEpisodeNumber);
+          if (enableUser !== undefined) cleanedService.widget.enableUser = !!JSON.parse(enableUser);
         }
         if (["sonarr", "radarr"].includes(type)) {
           if (enableQueue !== undefined) cleanedService.widget.enableQueue = JSON.parse(enableQueue);
@@ -586,6 +594,14 @@ export function cleanServiceGroups(groups) {
         }
         if (type === "healthchecks") {
           if (uuid !== undefined) cleanedService.widget.uuid = uuid;
+        }
+        if (type === "speedtest") {
+          if (bitratePrecision !== undefined) {
+            cleanedService.widget.bitratePrecision = parseInt(bitratePrecision, 10);
+          }
+        }
+        if (type === "wgeasy") {
+          if (threshold !== undefined) cleanedService.widget.threshold = parseInt(threshold, 10);
         }
       }
 
